@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     const expiryDays = settings ? Number(settings.value) : 30;
-
     const transferId = uuidv4();
 
     const { error: transferError } = await supabase.from("transfers").insert({
@@ -93,6 +92,7 @@ export async function POST(request: NextRequest) {
         id: f.id,
         filename: f.filename,
         storage_path: f.storage_path,
+        mime_type: f.mime_type,
       })),
     });
   } catch {

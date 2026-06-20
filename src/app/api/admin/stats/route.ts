@@ -20,9 +20,7 @@ export async function GET() {
       { data: transfers },
       { count: totalDownloads },
     ] = await Promise.all([
-      admin
-        .from("transfers")
-        .select("*", { count: "exact", head: true }),
+      admin.from("transfers").select("*", { count: "exact", head: true }),
       admin
         .from("transfers")
         .select("*", { count: "exact", head: true })
@@ -31,9 +29,7 @@ export async function GET() {
         .from("transfers")
         .select("total_size")
         .eq("status", "completed"),
-      admin
-        .from("download_logs")
-        .select("*", { count: "exact", head: true }),
+      admin.from("download_logs").select("*", { count: "exact", head: true }),
     ]);
 
     const totalStorage = (transfers || []).reduce(

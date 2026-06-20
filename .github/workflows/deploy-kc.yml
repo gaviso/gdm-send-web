@@ -1,0 +1,31 @@
+name: Deploy to Kinetic Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: kc-deploy
+  cancel-in-progress: false
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Redeploy on Kinetic Cloud
+        env:
+          KC_HOST: ${{ secrets.KC_HOST }}
+          KC_USER: ${{ secrets.KC_USER }}
+          KC_SSH_KEY: ${{ secrets.KC_SSH_KEY }}
+          KC_APP_DIR: ${{ secrets.KC_APP_DIR }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$KC_SSH_KEY" > ~/.ssh/kc_key
+          chmod 600 ~/.ssh/kc_key
+          ssh -i ~/.ssh/kc_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o UserKnownHostsFile=/dev/null \
+            -p 22 "$KC_USER@$KC_HOST" \
+            "cd \"$KC_APP_DIR\" && ./scripts/redeploy.sh"

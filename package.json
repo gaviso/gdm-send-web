@@ -1,23 +1,25 @@
 {
   "name": "gdm-send-web",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "kc:build": "npm ci && npm run build"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1073.0",
+    "@aws-sdk/s3-request-presigner": "^3.1073.0",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.47.0",
+    "@supabase/supabase-js": "^2.108.2",
     "lucide-react": "^0.460.0",
     "next": "14.2.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.5",
     "sonner": "^1.7.0",
-    "tus-js-client": "^4.2.3",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

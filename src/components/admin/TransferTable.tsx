@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Download, Trash2, Eye, MoreHorizontal } from "lucide-react";
 import { formatBytes, formatDate } from "@/lib/utils";
 import type { Transfer } from "@/types";
@@ -23,6 +23,80 @@ const statusStyles: Record<string, string> = {
     "bg-red-50 text-red-700 ring-red-600/20",
 };
 
+function ActionMenu({
+  status,
+  isOpen,
+  onToggle,
+  onClose,
+  onView,
+  onDownload,
+  onDelete,
+}: {
+  transferId: string;
+  status: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onView: () => void;
+  onDownload: () => void;
+  onDelete: () => void;
+}) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (isOpen && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 4, left: rect.right - 160 });
+    }
+  }, [isOpen]);
+
+  return (
+    <div className="inline-block">
+      <button
+        ref={btnRef}
+        onClick={onToggle}
+        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+      >
+        <MoreHorizontal className="h-4 w-4" />
+      </button>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={onClose} />
+          <div
+            className="fixed z-[9999] w-40 rounded-lg bg-white py-1 shadow-lg ring-1 ring-gray-200"
+            style={{ top: pos.top, left: pos.left }}
+          >
+            <button
+              onClick={onView}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <Eye className="h-4 w-4" />
+              View
+            </button>
+            {status === "completed" && (
+              <button
+                onClick={onDownload}
+                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </button>
+            )}
+            <button
+              onClick={onDelete}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function TransferTable({
   transfers,
   onDelete,
@@ -40,8 +114,8 @@ export default function TransferTable({
   }
 
   return (
-    <div className="card overflow-hidden !p-0">
-      <div className="overflow-x-auto">
+    <div className="card !p-0 rounded-xl border border-gray-200">
+      <div className="overflow-x-auto rounded-xl">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50/50">
@@ -66,7 +140,7 @@ export default function TransferTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {transfers.map((transfer) => (
+            {transfers.map((transfer, index) => (
               <tr
                 key={transfer.id}
                 className="hover:bg-gray-50 transition-colors"
@@ -101,61 +175,16 @@ export default function TransferTable({
                   {formatDate(transfer.created_at)}
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="relative inline-block">
-                    <button
-                      onClick={() =>
-                        setOpenMenu(
-                          openMenu === transfer.id ? null : transfer.id
-                        )
-                      }
-                      className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-
-                    {openMenu === transfer.id && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-10"
-                          onClick={() => setOpenMenu(null)}
-                        />
-                        <div className="absolute right-0 z-20 mt-1 w-40 rounded-lg bg-white py-1 shadow-lg ring-1 ring-gray-200">
-                          <button
-                            onClick={() => {
-                              onView(transfer.id);
-                              setOpenMenu(null);
-                            }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                          >
-                            <Eye className="h-4 w-4" />
-                            View
-                          </button>
-                          {transfer.status === "completed" && (
-                            <button
-                              onClick={() => {
-                                onDownload(transfer.id);
-                                setOpenMenu(null);
-                              }}
-                              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                            >
-                              <Download className="h-4 w-4" />
-                              Download
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              onDelete(transfer.id);
-                              setOpenMenu(null);
-                            }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <ActionMenu
+                    transferId={transfer.id}
+                    status={transfer.status}
+                    isOpen={openMenu === transfer.id}
+                    onToggle={() => setOpenMenu(openMenu === transfer.id ? null : transfer.id)}
+                    onClose={() => setOpenMenu(null)}
+                    onView={() => { onView(transfer.id); setOpenMenu(null); }}
+                    onDownload={() => { onDownload(transfer.id); setOpenMenu(null); }}
+                    onDelete={() => { onDelete(transfer.id); setOpenMenu(null); }}
+                  />
                 </td>
               </tr>
             ))}

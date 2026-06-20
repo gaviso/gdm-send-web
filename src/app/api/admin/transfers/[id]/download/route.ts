@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase-server";
+import { getDownloadUrl } from "@/lib/b2";
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +19,6 @@ export async function GET(
     const { id } = await params;
     const { searchParams } = new URL(request.url);
     const fileId = searchParams.get("fileId");
-
     const admin = createAdminClient();
 
     if (fileId) {
@@ -36,16 +36,7 @@ export async function GET(
         );
       }
 
-      const { data: signedUrl } = await admin.storage
-        .from("transfers")
-        .createSignedUrl(file.storage_path, 3600);
-
-      if (!signedUrl) {
-        return NextResponse.json(
-          { error: "Failed to generate download URL" },
-          { status: 500 }
-        );
-      }
+      const url = await getDownloadUrl(file.storage_path);
 
       await admin.from("download_logs").insert({
         transfer_id: id,
@@ -55,7 +46,7 @@ export async function GET(
           request.headers.get("x-real-ip"),
       });
 
-      return NextResponse.json({ url: signedUrl.signedUrl });
+      return NextResponse.json({ url });
     }
 
     const { data: files } = await admin
@@ -71,15 +62,10 @@ export async function GET(
     }
 
     const urls = await Promise.all(
-      files.map(async (file) => {
-        const { data } = await admin.storage
-          .from("transfers")
-          .createSignedUrl(file.storage_path, 3600);
-        return {
-          filename: file.filename,
-          url: data?.signedUrl,
-        };
-      })
+      files.map(async (file) => ({
+        filename: file.filename,
+        url: await getDownloadUrl(file.storage_path),
+      }))
     );
 
     await admin.from("download_logs").insert({

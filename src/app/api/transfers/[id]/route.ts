@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { deleteFiles } from "@/lib/b2";
 
 export async function GET(
   _request: NextRequest,
@@ -84,8 +85,7 @@ export async function DELETE(
       .eq("transfer_id", id);
 
     if (files && files.length > 0) {
-      const paths = files.map((f) => f.storage_path);
-      await supabase.storage.from("transfers").remove(paths);
+      await deleteFiles(files.map((f) => f.storage_path));
     }
 
     const { error } = await supabase

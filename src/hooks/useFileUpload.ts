@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { createClient } from "@/lib/supabase";
 import type { UploadingFile, CreateTransferPayload } from "@/types";
 import { MAX_TRANSFER_SIZE } from "@/lib/utils";
 
@@ -20,10 +19,7 @@ export function useFileUpload() {
       status: "pending" as const,
     }));
 
-    setFiles((prev) => {
-      const combined = [...prev, ...uploadingFiles];
-      return combined;
-    });
+    setFiles((prev) => [...prev, ...uploadingFiles]);
   }, []);
 
   const removeFile = useCallback((id: string) => {
@@ -57,7 +53,6 @@ export function useFileUpload() {
       if (validationError) throw new Error(validationError);
 
       setIsUploading(true);
-      const supabase = createClient();
 
       try {
         const payload: CreateTransferPayload = {
@@ -89,6 +84,7 @@ export function useFileUpload() {
           id: string;
           storage_path: string;
           filename: string;
+          mime_type: string;
         }[];
 
         let completedBytes = 0;
@@ -104,27 +100,62 @@ export function useFileUpload() {
             )
           );
 
-          const { error } = await supabase.storage
-            .from("transfers")
-            .upload(fileRecord.storage_path, uploadingFile.file, {
-              cacheControl: "3600",
-              upsert: false,
-            });
+          const presignRes = await fetch("/api/uploads/presign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transfer_id: transfer.id,
+              file_id: fileRecord.id,
+              storage_path: fileRecord.storage_path,
+              content_type: fileRecord.mime_type,
+            }),
+          });
 
-          if (error) {
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadingFile.id
-                  ? { ...f, status: "error", error: error.message }
-                  : f
-              )
-            );
-            throw new Error(`Failed to upload ${uploadingFile.file.name}`);
+          if (!presignRes.ok) {
+            throw new Error(`Failed to get upload URL for ${uploadingFile.file.name}`);
           }
 
+          const { url } = await presignRes.json();
+
+          const xhr = new XMLHttpRequest();
+          await new Promise<void>((resolve, reject) => {
+            xhr.upload.onprogress = (e) => {
+              if (e.lengthComputable) {
+                const fileProgress = Math.round((e.loaded / e.total) * 100);
+                setFiles((prev) =>
+                  prev.map((f) =>
+                    f.id === uploadingFile.id
+                      ? { ...f, progress: fileProgress }
+                      : f
+                  )
+                );
+                const currentTotal = completedBytes + e.loaded;
+                setOverallProgress(
+                  Math.round((currentTotal / totalBytes) * 100)
+                );
+              }
+            };
+
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve();
+              } else {
+                reject(new Error(`Upload failed: ${xhr.status}`));
+              }
+            };
+
+            xhr.onerror = () => reject(new Error("Upload failed"));
+
+            xhr.open("PUT", url);
+            xhr.setRequestHeader(
+              "Content-Type",
+              uploadingFile.file.type || "application/octet-stream"
+            );
+            xhr.send(uploadingFile.file);
+          });
+
           completedBytes += uploadingFile.file.size;
-          const progress = Math.round((completedBytes / totalBytes) * 100);
-          setOverallProgress(progress);
+          setOverallProgress(Math.round((completedBytes / totalBytes) * 100));
 
           setFiles((prev) =>
             prev.map((f) =>

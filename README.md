@@ -7,7 +7,8 @@ Secure file transfer platform for Gaviso agency. Clients send files up to 5 GB w
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database & Storage**: Supabase
+- **Database & Auth**: Supabase
+- **File Storage**: Backblaze B2 (S3-compatible)
 - **Deployment**: Kinsta Cloud (Node.js)
 
 ## Getting Started
@@ -24,18 +25,22 @@ npm install
 
 1. Create a new Supabase project
 2. Run `supabase/schema.sql` in the SQL Editor
-3. Create a storage bucket named `transfers`
-4. Create an admin user in Authentication > Users
+3. Create an admin user in Authentication > Users
 
-### 3. Configure Environment
+### 3. Set up Backblaze B2
+
+1. Create a B2 bucket named `gdm-send` (private)
+2. Create an application key scoped to that bucket
+
+### 4. Configure Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-Fill in your Supabase credentials.
+Fill in your Supabase and B2 credentials.
 
-### 4. Run Development Server
+### 5. Run Development Server
 
 ```bash
 npm run dev
@@ -51,7 +56,7 @@ npm run build
 npm start
 ```
 
-Set `output: "standalone"` is already configured in `next.config.ts` for Kinsta deployment.
+`output: "standalone"` is configured in `next.config.ts` for Kinsta deployment.
 
 ## License
 
