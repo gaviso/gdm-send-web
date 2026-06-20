@@ -4,8 +4,16 @@ import {
   S3Client,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
-import archiver from "archiver";
 import { Readable } from "node:stream";
+import * as archiverNs from "archiver";
+import type { Archiver, ArchiverOptions } from "archiver";
+
+// The @types/archiver v8 namespace doesn't expose the default callable export,
+// so wrap it as the function the runtime actually provides.
+const archiver = archiverNs as unknown as (
+  format: "zip" | "tar" | "json",
+  options?: ArchiverOptions
+) => Archiver;
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
