@@ -15,44 +15,38 @@ interface StatsCardsProps {
 export default function StatsCards({ stats }: StatsCardsProps) {
   const cards = [
     {
-      label: "Total Transfers",
+      label: "Total transfers",
       value: stats?.totalTransfers ?? "—",
       icon: FolderOpen,
-      color: "text-blue-600 bg-blue-50",
     },
     {
-      label: "Active Transfers",
+      label: "Active transfers",
       value: stats?.activeTransfers ?? "—",
       icon: Activity,
-      color: "text-green-600 bg-green-50",
     },
     {
-      label: "Storage Used",
+      label: "Storage used",
       value: stats ? formatBytes(stats.totalStorage) : "—",
       icon: HardDrive,
-      color: "text-purple-600 bg-purple-50",
     },
     {
-      label: "Total Downloads",
+      label: "Total downloads",
       value: stats?.totalDownloads ?? "—",
       icon: Download,
-      color: "text-orange-600 bg-orange-50",
     },
   ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <div key={card.label} className="card">
-          <div className="flex items-center gap-4">
-            <div className={`rounded-lg p-2.5 ${card.color}`}>
-              <card.icon className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">{card.label}</p>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-            </div>
+        <div key={card.label} className="card p-5">
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] text-gray-500 dark:text-gray-400">{card.label}</p>
+            <card.icon className="h-4 w-4 text-gray-400 dark:text-gray-500" strokeWidth={1.75} />
           </div>
+          <p className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-gray-50 u-tnum">
+            {card.value}
+          </p>
         </div>
       ))}
     </div>

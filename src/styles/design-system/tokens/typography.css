@@ -1,0 +1,58 @@
+/* ============================================================
+   UI System 1 — Typography tokens
+   Inter for UI + display (tight tracking on large sizes).
+   JetBrains Mono for links, code, metrics.
+   Fonts loaded in fonts.css.
+   ============================================================ */
+
+:root {
+  /* Families */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Weights */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Type scale (rem, 16px base) */
+  --text-xs:   0.75rem;   /* 12 */
+  --text-sm:   0.8125rem; /* 13 */
+  --text-base: 0.875rem;  /* 14 — default UI body */
+  --text-md:   1rem;      /* 16 */
+  --text-lg:   1.125rem;  /* 18 */
+  --text-xl:   1.375rem;  /* 22 */
+  --text-2xl:  1.75rem;   /* 28 */
+  --text-3xl:  2.25rem;   /* 36 */
+  --text-4xl:  3rem;      /* 48 */
+  --text-5xl:  3.75rem;   /* 60 */
+  --text-6xl:  4.5rem;    /* 72 */
+
+  /* Line heights */
+  --leading-none:    1;
+  --leading-tight:   1.15;
+  --leading-snug:    1.3;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing — display sizes get negative tracking */
+  --tracking-tighter: -0.04em;
+  --tracking-tight:   -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-caps:    0.06em;
+
+  /* ---- Semantic roles ---- */
+  --display-1-size: var(--text-6xl);
+  --display-2-size: var(--text-5xl);
+  --heading-1-size: var(--text-4xl);
+  --heading-2-size: var(--text-3xl);
+  --heading-3-size: var(--text-2xl);
+  --heading-4-size: var(--text-xl);
+  --title-size:     var(--text-lg);
+  --body-size:      var(--text-base);
+  --label-size:     var(--text-sm);
+  --caption-size:   var(--text-xs);
+}

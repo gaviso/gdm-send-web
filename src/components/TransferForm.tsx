@@ -34,7 +34,7 @@ export default function TransferForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="name" className="label">
           Your name
         </label>
         <input
@@ -43,14 +43,14 @@ export default function TransferForm({
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="John Smith"
+          placeholder="Jane Smith"
           className="input-field"
           disabled={isUploading}
         />
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="email" className="label">
           Your email
         </label>
         <input
@@ -59,41 +59,41 @@ export default function TransferForm({
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="john@company.com"
+          placeholder="jane@company.com"
           className="input-field"
           disabled={isUploading}
         />
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-          Message <span className="text-gray-400">(optional)</span>
+        <label htmlFor="message" className="label">
+          Message <span className="text-gray-400 font-normal">(optional)</span>
         </label>
         <textarea
           id="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Add a message for the team..."
+          placeholder="Add a note for the team"
           rows={3}
-          className="input-field resize-none"
+          className="textarea-field"
           disabled={isUploading}
         />
       </div>
 
-      <div className="pt-2">
+      <div className="pt-1">
         {isUploading ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-gray-700">
-                Uploading {fileCount} {fileCount === 1 ? "file" : "files"}...
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-gray-700 dark:text-gray-300">
+                Uploading {fileCount} {fileCount === 1 ? "file" : "files"}
               </span>
-              <span className="text-brand-600 font-semibold">
+              <span className="text-gray-950 dark:text-gray-50 font-semibold u-tnum">
                 {overallProgress}%
               </span>
             </div>
-            <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-gray-150 dark:bg-gray-800 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-600 transition-all duration-300"
+                className="h-full rounded-full bg-gray-950 dark:bg-gray-50 transition-all duration-300"
                 style={{ width: `${overallProgress}%` }}
               />
             </div>
@@ -102,11 +102,14 @@ export default function TransferForm({
           <button
             type="submit"
             disabled={disabled || fileCount === 0}
-            className="btn-primary w-full gap-2"
+            className="btn-primary w-full"
           >
-            <Send className="h-4 w-4" />
-            Send {fileCount > 0 && `${fileCount} ${fileCount === 1 ? "file" : "files"}`}
-            {totalSize > 0 && ` (${formatBytes(totalSize)})`}
+            <Send className="h-4 w-4" strokeWidth={1.75} />
+            <span>
+              {fileCount === 0
+                ? "Send"
+                : `Send ${fileCount} ${fileCount === 1 ? "file" : "files"}${totalSize > 0 ? ` · ${formatBytes(totalSize)}` : ""}`}
+            </span>
           </button>
         )}
       </div>

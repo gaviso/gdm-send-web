@@ -6,6 +6,13 @@ import TransferTable from "@/components/admin/TransferTable";
 import { toast } from "sonner";
 import type { Transfer } from "@/types";
 
+const STATUS_FILTERS = [
+  { value: "", label: "All" },
+  { value: "completed", label: "Completed" },
+  { value: "uploading", label: "Uploading" },
+  { value: "expired", label: "Expired" },
+];
+
 export default function TransfersPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [total, setTotal] = useState(0);
@@ -71,40 +78,46 @@ export default function TransfersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transfers</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-gray-50">
+            Transfers
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {total} total transfer{total !== 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={fetchTransfers}
           disabled={loading}
-          className="btn-secondary gap-2"
+          className="btn-secondary"
         >
           <RefreshCw
             className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            strokeWidth={1.75}
           />
           Refresh
         </button>
       </div>
 
-      <div className="flex gap-2">
-        {["", "completed", "uploading", "expired"].map((status) => (
-          <button
-            key={status}
-            onClick={() => {
-              setStatusFilter(status);
-              setPage(1);
-            }}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              statusFilter === status
-                ? "bg-brand-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {status || "All"}
-          </button>
-        ))}
+      <div className="flex gap-1.5 border-b border-gray-200 dark:border-gray-800 pb-px">
+        {STATUS_FILTERS.map((f) => {
+          const active = statusFilter === f.value;
+          return (
+            <button
+              key={f.value}
+              onClick={() => {
+                setStatusFilter(f.value);
+                setPage(1);
+              }}
+              className={`relative px-3 py-2 -mb-px text-[13px] font-medium transition-colors duration-150 border-b-2 ${
+                active
+                  ? "border-gray-950 text-gray-950 dark:border-gray-50 dark:text-gray-50"
+                  : "border-transparent text-gray-500 hover:text-gray-950 dark:text-gray-400 dark:hover:text-gray-50"
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       <TransferTable
@@ -116,21 +129,21 @@ export default function TransfersPage() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="btn-secondary !px-3 !py-1.5 text-xs"
+              className="btn-secondary btn-sm"
             >
               Previous
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="btn-secondary !px-3 !py-1.5 text-xs"
+              className="btn-secondary btn-sm"
             >
               Next
             </button>

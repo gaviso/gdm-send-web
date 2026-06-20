@@ -1,31 +1,210 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --gray-50: #fafafa;
+  --gray-100: #f4f4f5;
+  --gray-150: #ececee;
+  --gray-200: #e4e4e7;
+  --gray-300: #d4d4d8;
+  --gray-400: #a1a1aa;
+  --gray-500: #71717a;
+  --gray-600: #52525b;
+  --gray-700: #3f3f46;
+  --gray-800: #27272a;
+  --gray-900: #18181b;
+  --gray-950: #09090b;
+
+  --blue-400: #608dfa;
+  --blue-500: #3b6cf4;
+  --blue-600: #2451e9;
+  --blue-700: #1d3fd6;
+
+  --focus-ring: rgba(59, 108, 244, 0.35);
+  --ring-focus: 0 0 0 3px var(--focus-ring);
+
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --focus-ring: rgba(96, 141, 250, 0.45);
+}
+
 @layer base {
+  html {
+    font-feature-settings: "cv11", "ss01";
+  }
+
   body {
-    @apply antialiased;
+    @apply antialiased font-sans text-gray-950 bg-white dark:text-gray-50 dark:bg-gray-950;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight text-gray-950 dark:text-gray-50;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue-500);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: #dbe6fe;
+    color: #1e3389;
+  }
+
+  [data-theme="dark"] ::selection {
+    background: rgba(96, 141, 250, 0.32);
+    color: var(--gray-50);
   }
 }
 
 @layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none whitespace-nowrap;
+    transition-timing-function: var(--ease-out);
+  }
+
+  .btn-md {
+    @apply h-[38px] px-[14px] text-sm;
+  }
+
+  .btn-sm {
+    @apply h-8 px-[10px] text-[13px];
+  }
+
+  .btn-lg {
+    @apply h-11 px-[18px] text-base;
+  }
+
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply btn btn-md
+      border-gray-950 bg-gray-950 text-white hover:bg-gray-800 active:bg-black
+      dark:border-gray-50 dark:bg-gray-50 dark:text-gray-950 dark:hover:bg-white dark:active:bg-gray-200;
+    box-shadow: 0 1px 3px rgba(9, 9, 11, 0.08), 0 1px 2px rgba(9, 9, 11, 0.04),
+      var(--shadow-inset-top);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply btn btn-md
+      border-gray-200 bg-white text-gray-800 shadow-xs hover:bg-gray-50 active:bg-gray-100
+      dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700;
+  }
+
+  .btn-accent {
+    @apply btn btn-md
+      border-brand-600 bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800
+      dark:border-brand-500 dark:bg-brand-500 dark:hover:bg-brand-400 dark:active:bg-brand-600;
+    box-shadow: 0 1px 3px rgba(9, 9, 11, 0.08), 0 1px 2px rgba(9, 9, 11, 0.04),
+      var(--shadow-inset-top);
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center rounded-lg bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply btn btn-md
+      border-danger-600 bg-danger-600 text-white hover:bg-danger-700 active:bg-danger-700
+      dark:border-danger-500 dark:bg-danger-500 dark:hover:bg-danger-400;
+    box-shadow: 0 1px 3px rgba(9, 9, 11, 0.08), 0 1px 2px rgba(9, 9, 11, 0.04),
+      var(--shadow-inset-top);
+  }
+
+  .btn-ghost {
+    @apply btn btn-md border-transparent bg-transparent
+      text-gray-600 hover:bg-gray-100 active:bg-gray-150
+      dark:text-gray-400 dark:hover:bg-gray-800 dark:active:bg-gray-700;
+    box-shadow: none;
   }
 
   .input-field {
-    @apply block w-full rounded-lg border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6;
+    @apply block w-full h-[38px] px-3 text-sm
+      text-gray-950 bg-white border border-gray-200 rounded-md shadow-xs
+      placeholder:text-gray-500 transition-colors duration-150
+      hover:border-gray-300 focus:outline-none focus:border-brand-500
+      dark:text-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:placeholder:text-gray-500
+      dark:hover:border-gray-600 dark:focus:border-brand-500;
+  }
+
+  .input-field:focus {
+    box-shadow: var(--ring-focus);
+  }
+
+  .textarea-field {
+    @apply block w-full px-3 py-2.5 text-sm
+      text-gray-950 bg-white border border-gray-200 rounded-md shadow-xs
+      placeholder:text-gray-500 transition-colors duration-150
+      hover:border-gray-300 focus:outline-none focus:border-brand-500 resize-y min-h-[80px]
+      dark:text-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:placeholder:text-gray-500
+      dark:hover:border-gray-600 dark:focus:border-brand-500;
+    line-height: 1.5;
+  }
+
+  .textarea-field:focus {
+    box-shadow: var(--ring-focus);
+  }
+
+  .label {
+    @apply block text-[13px] font-medium text-gray-950 dark:text-gray-100 mb-1.5;
+  }
+
+  .hint {
+    @apply text-xs text-gray-500 dark:text-gray-400;
   }
 
   .card {
-    @apply rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5;
+    @apply rounded-lg bg-white border border-gray-200 shadow-sm
+      dark:bg-gray-900 dark:border-gray-800;
+  }
+
+  .card-pad {
+    @apply card p-6;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset;
+  }
+
+  .badge-success {
+    @apply bg-success-50 text-success-700 ring-success-600/20
+      dark:bg-success-500/20 dark:text-success-400 dark:ring-success-500/30;
+  }
+
+  .badge-info {
+    @apply bg-brand-50 text-brand-700 ring-brand-600/20
+      dark:bg-brand-500/20 dark:text-brand-300 dark:ring-brand-500/30;
+  }
+
+  .badge-warning {
+    @apply bg-warning-50 text-warning-700 ring-warning-600/20
+      dark:bg-warning-500/20 dark:text-warning-400 dark:ring-warning-500/30;
+  }
+
+  .badge-danger {
+    @apply bg-danger-50 text-danger-700 ring-danger-600/20
+      dark:bg-danger-500/20 dark:text-danger-400 dark:ring-danger-500/30;
+  }
+
+  .u-mono {
+    @apply font-mono;
+  }
+
+  .u-tnum {
+    font-variant-numeric: tabular-nums;
   }
 }

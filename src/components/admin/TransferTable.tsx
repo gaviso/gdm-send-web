@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Download, Trash2, Eye, MoreHorizontal } from "lucide-react";
+import { Download, Trash2, Eye, MoreHorizontal, ArrowDownToLine } from "lucide-react";
 import { formatBytes, formatDate } from "@/lib/utils";
 import type { Transfer } from "@/types";
 
@@ -12,15 +12,11 @@ interface TransferTableProps {
   onView: (id: string) => void;
 }
 
-const statusStyles: Record<string, string> = {
-  completed:
-    "bg-green-50 text-green-700 ring-green-600/20",
-  uploading:
-    "bg-blue-50 text-blue-700 ring-blue-600/20",
-  expired:
-    "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
-  deleted:
-    "bg-red-50 text-red-700 ring-red-600/20",
+const statusClass: Record<string, string> = {
+  completed: "badge badge-success",
+  uploading: "badge badge-info",
+  expired: "badge badge-warning",
+  deleted: "badge badge-danger",
 };
 
 function ActionMenu({
@@ -47,7 +43,7 @@ function ActionMenu({
   useEffect(() => {
     if (isOpen && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + 4, left: rect.right - 160 });
+      setPos({ top: rect.bottom + 4, left: rect.right - 168 });
     }
   }, [isOpen]);
 
@@ -56,38 +52,40 @@ function ActionMenu({
       <button
         ref={btnRef}
         onClick={onToggle}
-        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+        className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-950 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 transition-colors"
+        aria-label="Actions"
       >
-        <MoreHorizontal className="h-4 w-4" />
+        <MoreHorizontal className="h-4 w-4" strokeWidth={1.75} />
       </button>
       {isOpen && (
         <>
           <div className="fixed inset-0 z-[9998]" onClick={onClose} />
           <div
-            className="fixed z-[9999] w-40 rounded-lg bg-white py-1 shadow-lg ring-1 ring-gray-200"
+            className="fixed z-[9999] w-[168px] rounded-md border border-gray-200 bg-white py-1 shadow-md dark:border-gray-800 dark:bg-gray-900"
             style={{ top: pos.top, left: pos.left }}
           >
             <button
               onClick={onView}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 transition-colors"
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
               View
             </button>
             {status === "completed" && (
               <button
                 onClick={onDownload}
-                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 transition-colors"
               >
-                <Download className="h-4 w-4" />
+                <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Download
               </button>
             )}
+            <div className="my-1 h-px bg-gray-150 dark:bg-gray-800" />
             <button
               onClick={onDelete}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-danger-600 hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-500/10 transition-colors"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
               Delete
             </button>
           </div>
@@ -107,74 +105,76 @@ export default function TransferTable({
 
   if (transfers.length === 0) {
     return (
-      <div className="card text-center py-12">
-        <p className="text-gray-500">No transfers found</p>
+      <div className="card flex flex-col items-center py-12">
+        <p className="text-sm text-gray-500 dark:text-gray-400">No transfers yet</p>
       </div>
     );
   }
 
   return (
-    <div className="card !p-0 rounded-xl border border-gray-200">
-      <div className="overflow-x-auto rounded-xl">
+    <div className="card overflow-hidden">
+      <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50/50">
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <tr className="border-b border-gray-200 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-800/30">
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Sender
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Files
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Size
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Downloads
+              </th>
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Date
               </th>
-              <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th className="px-5 py-3 text-right text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
-            {transfers.map((transfer, index) => (
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+            {transfers.map((transfer) => (
               <tr
                 key={transfer.id}
-                className="hover:bg-gray-50 transition-colors"
+                className="hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors"
               >
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {transfer.sender_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {transfer.sender_email}
-                    </p>
-                  </div>
+                <td className="px-5 py-3">
+                  <p className="text-sm font-medium text-gray-950 dark:text-gray-50">
+                    {transfer.sender_name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 u-mono">
+                    {transfer.sender_email}
+                  </p>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700">
-                  {transfer.file_count}{" "}
-                  {transfer.file_count === 1 ? "file" : "files"}
+                <td className="px-5 py-3 text-sm text-gray-700 dark:text-gray-300 u-tnum">
+                  {transfer.file_count}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700">
+                <td className="px-5 py-3 text-sm text-gray-700 dark:text-gray-300 u-mono u-tnum">
                   {formatBytes(transfer.total_size)}
                 </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                      statusStyles[transfer.status] || statusStyles.completed
-                    }`}
-                  >
+                <td className="px-5 py-3 text-sm text-gray-700 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1.5 u-tnum">
+                    <ArrowDownToLine className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" strokeWidth={1.75} />
+                    {transfer.download_count ?? 0}
+                  </span>
+                </td>
+                <td className="px-5 py-3">
+                  <span className={statusClass[transfer.status] || statusClass.completed}>
                     {transfer.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
+                <td className="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(transfer.created_at)}
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-5 py-3 text-right">
                   <ActionMenu
                     transferId={transfer.id}
                     status={transfer.status}

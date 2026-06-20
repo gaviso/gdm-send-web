@@ -1,0 +1,9 @@
+/* ============================================================
+   UI System 1 — Webfonts
+   Inter (UI + display) and JetBrains Mono (code / links / metrics)
+   are loaded from Google Fonts. If you self-host, replace the
+   @import below with local @font-face rules pointing at the
+   binaries in /assets/fonts.
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");

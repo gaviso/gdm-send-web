@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { toast } from "sonner";
+import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -36,27 +38,27 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-brand-50/30 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-lg">
-            G
+          <div className="flex justify-center">
+            <Logo size={36} />
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">
-            GDM Send Admin
+          <h1 className="mt-4 text-xl font-semibold tracking-tight text-gray-950 dark:text-gray-50">
+            Admin sign in
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Sign in to manage transfers
           </p>
         </div>
 
-        <div className="card">
+        <div className="card-pad">
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="email" className="label">
                 Email
               </label>
               <input
@@ -68,14 +70,12 @@ export default function AdminLoginPage() {
                 className="input-field"
                 placeholder="admin@gaviso.agency"
                 disabled={loading}
+                autoComplete="email"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="password" className="label">
                 Password
               </label>
               <input
@@ -87,15 +87,16 @@ export default function AdminLoginPage() {
                 className="input-field"
                 placeholder="Your password"
                 disabled={loading}
+                autoComplete="current-password"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-primary w-full mt-2"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
         </div>

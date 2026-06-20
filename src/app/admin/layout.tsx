@@ -43,8 +43,8 @@ export default function AdminLayout({
 
   if (authenticated === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
       </div>
     );
   }
@@ -54,10 +54,10 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
       <AdminSidebar />
       <main className="flex-1 overflow-auto">
-        <div className="p-8">{children}</div>
+        <div className="mx-auto max-w-6xl px-8 py-8">{children}</div>
       </main>
     </div>
   );

@@ -70,13 +70,13 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-8 w-48 rounded bg-gray-200" />
+        <div className="h-7 w-40 rounded bg-gray-200 dark:bg-gray-800" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 rounded-xl bg-gray-200" />
+            <div key={i} className="h-24 rounded-lg bg-gray-200 dark:bg-gray-800" />
           ))}
         </div>
-        <div className="h-64 rounded-xl bg-gray-200" />
+        <div className="h-64 rounded-lg bg-gray-200 dark:bg-gray-800" />
       </div>
     );
   }
@@ -84,8 +84,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-gray-50">
+          Dashboard
+        </h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Overview of file transfers
         </p>
       </div>
@@ -94,15 +96,15 @@ export default function DashboardPage() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Recent Transfers
+          <h2 className="text-base font-semibold tracking-tight text-gray-950 dark:text-gray-50">
+            Recent transfers
           </h2>
           <Link
             href="/admin/transfers"
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+            className="inline-flex items-center gap-1 text-[13px] font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300"
           >
             View all
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} />
           </Link>
         </div>
         <TransferTable

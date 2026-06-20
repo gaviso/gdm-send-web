@@ -1,15 +1,27 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "GDM Send - Secure File Transfer",
+  title: "GDM Send — Secure file transfer",
   description:
-    "Send files up to 5GB securely to Gaviso agency. No account required.",
+    "Send files up to 5 GB securely to Gaviso agency. No account required.",
 };
+
+const themeInitScript = `
+(function() {
+  try {
+    var key = 'gdm-send-theme';
+    var stored = localStorage.getItem(key);
+    var mode = stored && ['light','dark','system'].indexOf(stored) !== -1 ? stored : 'system';
+    var resolved = mode === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : mode;
+    document.documentElement.dataset.theme = resolved;
+  } catch (e) {}
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -18,9 +30,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        {children}
-        <Toaster position="top-right" richColors />
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body>
+        <ThemeProvider>
+          {children}
+          <Toaster position="top-right" richColors theme="system" />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -132,8 +132,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const transferIds = (data || []).map((t) => t.id);
+    const downloadCounts = new Map<string, number>();
+
+    if (transferIds.length > 0) {
+      const { data: logs } = await supabase
+        .from("download_logs")
+        .select("transfer_id")
+        .in("transfer_id", transferIds);
+
+      (logs || []).forEach((log) => {
+        downloadCounts.set(
+          log.transfer_id,
+          (downloadCounts.get(log.transfer_id) || 0) + 1
+        );
+      });
+    }
+
+    const transfers = (data || []).map((t) => ({
+      ...t,
+      download_count: downloadCounts.get(t.id) || 0,
+    }));
+
     return NextResponse.json({
-      transfers: data,
+      transfers,
       total: count,
       page,
       limit,

@@ -72,8 +72,8 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-8 w-48 rounded bg-gray-200" />
-        <div className="h-96 rounded-xl bg-gray-200" />
+        <div className="h-7 w-32 rounded bg-gray-200 dark:bg-gray-800" />
+        <div className="h-96 rounded-lg bg-gray-200 dark:bg-gray-800" />
       </div>
     );
   }
@@ -81,77 +81,89 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-gray-50">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Configure transfer limits and preferences
         </p>
       </div>
 
       <form onSubmit={handleSave} className="max-w-2xl space-y-6">
-        <div className="card space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Transfer Limits
+        <div className="card-pad">
+          <h2 className="text-base font-semibold tracking-tight text-gray-950 dark:text-gray-50 mb-5">
+            Transfer limits
           </h2>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Maximum transfer size
-            </label>
-            <select
-              value={settings.max_transfer_size}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  max_transfer_size: e.target.value,
-                }))
-              }
-              className="input-field"
-            >
-              {sizeOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-gray-500">
-              Current:{" "}
-              {formatBytes(Number(settings.max_transfer_size))}
-            </p>
-          </div>
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="max-size" className="label">
+                Maximum transfer size
+              </label>
+              <select
+                id="max-size"
+                value={settings.max_transfer_size}
+                onChange={(e) =>
+                  setSettings((s) => ({
+                    ...s,
+                    max_transfer_size: e.target.value,
+                  }))
+                }
+                className="input-field"
+              >
+                {sizeOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <p className="hint mt-1.5">
+                Current:{" "}
+                <span className="u-mono">
+                  {formatBytes(Number(settings.max_transfer_size))}
+                </span>
+              </p>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Transfer expiry (days)
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="365"
-              value={settings.transfer_expiry_days}
-              onChange={(e) =>
-                setSettings((s) => ({
-                  ...s,
-                  transfer_expiry_days: e.target.value,
-                }))
-              }
-              className="input-field"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Transfers will expire after this many days
-            </p>
+            <div>
+              <label htmlFor="expiry-days" className="label">
+                Transfer expiry
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="expiry-days"
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={settings.transfer_expiry_days}
+                  onChange={(e) =>
+                    setSettings((s) => ({
+                      ...s,
+                      transfer_expiry_days: e.target.value,
+                    }))
+                  }
+                  className="input-field max-w-[120px]"
+                />
+                <span className="text-sm text-gray-500 dark:text-gray-400">days</span>
+              </div>
+              <p className="hint mt-1.5">
+                Transfers will expire after this many days
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="card space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="card-pad">
+          <h2 className="text-base font-semibold tracking-tight text-gray-950 dark:text-gray-50 mb-5">
             Notifications
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="notify-email" className="label">
               Notification email
             </label>
             <input
+              id="notify-email"
               type="email"
               value={settings.notification_email}
               onChange={(e) =>
@@ -163,21 +175,24 @@ export default function SettingsPage() {
               className="input-field"
               placeholder="admin@gaviso.agency"
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Receive notifications when new transfers arrive
+            <p className="hint mt-1.5">
+              Receive a notification when new transfers arrive
             </p>
           </div>
         </div>
 
-        <div className="card space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="card-pad">
+          <h2 className="text-base font-semibold tracking-tight text-gray-950 dark:text-gray-50 mb-5">
             Cleanup
           </h2>
 
-          <div className="flex items-center gap-3">
+          <label
+            htmlFor="auto-delete"
+            className="flex items-start gap-3 cursor-pointer"
+          >
             <input
               type="checkbox"
-              id="auto_delete"
+              id="auto-delete"
               checked={settings.auto_delete_expired === "true"}
               onChange={(e) =>
                 setSettings((s) => ({
@@ -185,21 +200,25 @@ export default function SettingsPage() {
                   auto_delete_expired: e.target.checked ? "true" : "false",
                 }))
               }
-              className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-gray-950 focus:ring-brand-500"
             />
-            <label
-              htmlFor="auto_delete"
-              className="text-sm font-medium text-gray-700"
-            >
-              Automatically delete expired transfers
-            </label>
-          </div>
+            <div>
+              <span className="text-[13px] font-medium text-gray-950 dark:text-gray-50">
+                Auto-delete expired transfers
+              </span>
+              <p className="hint mt-0.5">
+                Files are removed from storage when a transfer expires
+              </p>
+            </div>
+          </label>
         </div>
 
-        <button type="submit" disabled={saving} className="btn-primary gap-2">
-          <Save className="h-4 w-4" />
-          {saving ? "Saving..." : "Save settings"}
-        </button>
+        <div className="flex justify-end">
+          <button type="submit" disabled={saving} className="btn-primary">
+            <Save className="h-4 w-4" strokeWidth={1.75} />
+            {saving ? "Saving…" : "Save settings"}
+          </button>
+        </div>
       </form>
     </div>
   );

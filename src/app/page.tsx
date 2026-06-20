@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Shield, Zap, Clock } from "lucide-react";
+import { Shield, Zap, HardDrive } from "lucide-react";
 import FileUploader from "@/components/FileUploader";
 import TransferForm from "@/components/TransferForm";
+import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useFileUpload } from "@/hooks/useFileUpload";
 
 export default function HomePage() {
@@ -29,7 +31,7 @@ export default function HomePage() {
     setError(null);
     try {
       const transferId = await uploadFiles(name, email, message);
-      toast.success("Files sent successfully!");
+      toast.success("Files sent successfully");
       router.push(`/transfer/${transferId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upload failed";
@@ -39,28 +41,29 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-brand-50/30">
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold text-sm">
-              G
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">GDM Send</h1>
-              <p className="text-xs text-gray-500">by Gaviso</p>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
+      <header className="border-b border-gray-200 dark:border-gray-800">
+        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Logo size={28} />
+            <div className="flex items-baseline gap-2">
+              <span className="text-[15px] font-semibold tracking-tight text-gray-950 dark:text-gray-50">
+                GDM Send
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">by Gaviso</span>
             </div>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1fr,380px]">
+      <main className="flex-1 mx-auto w-full max-w-6xl px-6 py-12">
+        <div className="grid gap-10 lg:grid-cols-[1fr,380px]">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-gray-950 dark:text-gray-50 sm:text-4xl">
               Send files to our team
-            </h2>
-            <p className="mt-3 text-lg text-gray-600">
+            </h1>
+            <p className="mt-3 text-base text-gray-600 dark:text-gray-400">
               Upload files up to 5 GB securely. No account needed.
             </p>
 
@@ -74,59 +77,35 @@ export default function HomePage() {
             </div>
 
             {error && (
-              <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-700">
+              <div className="mt-4 rounded-md border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-500/30 dark:bg-danger-500/10 dark:text-danger-400">
                 {error}
               </div>
             )}
 
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
-              <div className="flex gap-3">
-                <div className="flex-shrink-0">
-                  <Shield className="h-6 w-6 text-brand-600" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">
-                    Secure transfer
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Files are encrypted and stored securely.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="flex-shrink-0">
-                  <Zap className="h-6 w-6 text-brand-600" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">
-                    No account needed
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Just add your files and send.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="flex-shrink-0">
-                  <Clock className="h-6 w-6 text-brand-600" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">
-                    Up to 5 GB
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Large files are handled with ease.
-                  </p>
-                </div>
-              </div>
+              <Feature
+                icon={<Shield className="h-5 w-5" strokeWidth={1.75} />}
+                title="Secure transfer"
+                description="Files are encrypted in transit and stored on private infrastructure."
+              />
+              <Feature
+                icon={<Zap className="h-5 w-5" strokeWidth={1.75} />}
+                title="No account"
+                description="Just add your files, your details, and send."
+              />
+              <Feature
+                icon={<HardDrive className="h-5 w-5" strokeWidth={1.75} />}
+                title="Up to 5 GB"
+                description="Large files are handled with ease, no compression."
+              />
             </div>
           </div>
 
           <div className="lg:sticky lg:top-8 lg:self-start">
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+            <div className="card-pad">
+              <h2 className="text-lg font-semibold tracking-tight text-gray-950 dark:text-gray-50 mb-5">
                 Your details
-              </h3>
+              </h2>
               <TransferForm
                 totalSize={getTotalSize()}
                 fileCount={files.length}
@@ -140,13 +119,37 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="border-t border-gray-200 bg-white/60">
-        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-400">
+      <footer className="border-t border-gray-200 dark:border-gray-800">
+        <div className="mx-auto max-w-6xl px-6 py-6">
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} Gaviso. All rights reserved.
           </p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex gap-3">
+      <div className="flex-shrink-0 flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+        {icon}
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-gray-950 dark:text-gray-50">{title}</h3>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }

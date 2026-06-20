@@ -1,0 +1,7 @@
+<svg width="172" height="40" viewBox="0 0 172 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UI System 1">
+  <rect width="40" height="40" rx="10" fill="#ffffff"></rect>
+  <path d="M15.5 13.5a5.5 5.5 0 0 0 0 7.8l1.8 1.8a1.6 1.6 0 1 0 2.3-2.3l-1.8-1.8a2.3 2.3 0 0 1 0-3.2l3.2-3.2a2.3 2.3 0 0 1 3.2 0 1.6 1.6 0 1 0 2.3-2.3 5.5 5.5 0 0 0-7.8 0l-3.2 3.2-.2.2z" fill="#09090b"></path>
+  <path d="M24.5 26.5a5.5 5.5 0 0 0 0-7.8l-1.8-1.8a1.6 1.6 0 1 0-2.3 2.3l1.8 1.8a2.3 2.3 0 0 1 0 3.2l-3.2 3.2a2.3 2.3 0 0 1-3.2 0 1.6 1.6 0 1 0-2.3 2.3 5.5 5.5 0 0 0 7.8 0l3.2-3.2.2-.2z" fill="#3b6cf4"></path>
+  <text x="54" y="26" font-family="Inter, sans-serif" font-size="19" font-weight="700" letter-spacing="-0.02em" fill="#ffffff">UI System</text>
+  <text x="158" y="26" font-family="&#39;JetBrains Mono&#39;, monospace" font-size="19" font-weight="600" fill="#608dfa">1</text>
+</svg>

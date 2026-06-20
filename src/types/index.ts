@@ -10,6 +10,7 @@ export interface Transfer {
   status: TransferStatus;
   created_at: string;
   expires_at: string;
+  download_count?: number;
 }
 
 export interface TransferFile {

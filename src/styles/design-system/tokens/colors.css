@@ -1,0 +1,210 @@
+/* ============================================================
+   UI System 1 — Color tokens
+   Neutral-first palette. Near-black drives primary actions,
+   a confident blue carries links, focus and brand accent.
+   ============================================================ */
+
+:root {
+  /* ---- Neutral scale (pure, slightly cool gray) ---- */
+  --gray-50:  #fafafa;
+  --gray-100: #f4f4f5;
+  --gray-150: #ececee;
+  --gray-200: #e4e4e7;
+  --gray-300: #d4d4d8;
+  --gray-400: #a1a1aa;
+  --gray-500: #71717a;
+  --gray-600: #52525b;
+  --gray-700: #3f3f46;
+  --gray-800: #27272a;
+  --gray-900: #18181b;
+  --gray-950: #09090b;
+
+  /* ---- Brand blue (accent / links / focus) ---- */
+  --blue-50:  #eff4ff;
+  --blue-100: #dbe6fe;
+  --blue-200: #bfd3fe;
+  --blue-300: #93b4fd;
+  --blue-400: #608dfa;
+  --blue-500: #3b6cf4;
+  --blue-600: #2451e9;
+  --blue-700: #1d3fd6;
+  --blue-800: #1e36ad;
+  --blue-900: #1e3389;
+
+  /* ---- Semantic hues ---- */
+  --green-50:  #ecfdf3;
+  --green-100: #d1fadf;
+  --green-400: #3ccb7f;
+  --green-500: #16b364;
+  --green-600: #099250;
+  --green-700: #087443;
+
+  --red-50:  #fef3f2;
+  --red-100: #fee4e2;
+  --red-400: #f97066;
+  --red-500: #f04438;
+  --red-600: #d92d20;
+  --red-700: #b42318;
+
+  --amber-50:  #fffaeb;
+  --amber-100: #fef0c7;
+  --amber-400: #fdb022;
+  --amber-500: #f79009;
+  --amber-600: #dc6803;
+  --amber-700: #b54708;
+
+  --violet-50:  #f5f3ff;
+  --violet-100: #ede9fe;
+  --violet-400: #a48afb;
+  --violet-500: #7c5cfc;
+  --violet-600: #6938ef;
+
+  /* ============================================================
+     Semantic aliases — reach for these in components
+     ============================================================ */
+
+  /* Surfaces */
+  --surface-page:     #ffffff;
+  --surface-subtle:   var(--gray-50);
+  --surface-card:     #ffffff;
+  --surface-raised:   #ffffff;
+  --surface-sunken:   var(--gray-100);
+  --surface-inverse:  var(--gray-950);
+  --surface-overlay:  rgba(9, 9, 11, 0.45);
+
+  /* Text */
+  --text-primary:   var(--gray-950);
+  --text-secondary: var(--gray-600);
+  --text-tertiary:  var(--gray-500);
+  --text-disabled:  var(--gray-400);
+  --text-inverse:   #ffffff;
+  --text-link:      var(--blue-600);
+  --text-brand:     var(--blue-600);
+
+  /* Borders */
+  --border-subtle:  var(--gray-150);
+  --border-default: var(--gray-200);
+  --border-strong:  var(--gray-300);
+  --border-focus:   var(--blue-500);
+  --border-inverse: var(--gray-800);
+
+  /* Actions — primary (near-black, signature) */
+  --action-primary-bg:        var(--gray-950);
+  --action-primary-bg-hover:  var(--gray-800);
+  --action-primary-bg-active: #000000;
+  --action-primary-fg:        #ffffff;
+
+  /* Actions — secondary (white w/ border) */
+  --action-secondary-bg:        #ffffff;
+  --action-secondary-bg-hover:  var(--gray-50);
+  --action-secondary-bg-active: var(--gray-100);
+  --action-secondary-fg:        var(--gray-800);
+  --action-secondary-border:    var(--gray-200);
+
+  /* Actions — accent (brand blue) */
+  --action-accent-bg:        var(--blue-600);
+  --action-accent-bg-hover:  var(--blue-700);
+  --action-accent-bg-active: var(--blue-800);
+  --action-accent-fg:        #ffffff;
+
+  /* Focus ring */
+  --focus-ring: rgba(59, 108, 244, 0.35);
+
+  /* Semantic surfaces + text */
+  --success-bg:   var(--green-50);
+  --success-fg:   var(--green-700);
+  --success-solid:var(--green-600);
+  --error-bg:     var(--red-50);
+  --error-fg:     var(--red-700);
+  --error-solid:  var(--red-600);
+  --warning-bg:   var(--amber-50);
+  --warning-fg:   var(--amber-700);
+  --warning-solid:var(--amber-600);
+  --info-bg:      var(--blue-50);
+  --info-fg:      var(--blue-700);
+  --info-solid:   var(--blue-600);
+
+  /* Text selection */
+  --selection-bg: var(--blue-100);
+  --selection-fg: var(--blue-900);
+
+  color-scheme: light;
+}
+
+/* ============================================================
+   DARK THEME
+   Activates manually via [data-theme="dark"] or .dark on any
+   ancestor (usually <html>). Opt a subtree back to light with
+   [data-theme="light"]/.light. Only semantic aliases flip —
+   the raw scales are unchanged.
+   ============================================================ */
+
+[data-theme="dark"],
+.dark {
+  /* Surfaces */
+  --surface-page:     var(--gray-950);
+  --surface-subtle:   #101013;
+  --surface-card:     var(--gray-900);
+  --surface-raised:   var(--gray-800);
+  --surface-sunken:   #050507;
+  --surface-inverse:  var(--gray-50);
+  --surface-overlay:  rgba(0, 0, 0, 0.6);
+
+  /* Text */
+  --text-primary:   var(--gray-50);
+  --text-secondary: var(--gray-400);
+  --text-tertiary:  var(--gray-500);
+  --text-disabled:  var(--gray-600);
+  --text-inverse:   var(--gray-950);
+  --text-link:      var(--blue-400);
+  --text-brand:     var(--blue-400);
+
+  /* Borders */
+  --border-subtle:  var(--gray-800);
+  --border-default: var(--gray-800);
+  --border-strong:  var(--gray-700);
+  --border-focus:   var(--blue-500);
+  --border-inverse: var(--gray-200);
+
+  /* Actions — primary inverts to near-white */
+  --action-primary-bg:        var(--gray-50);
+  --action-primary-bg-hover:  #ffffff;
+  --action-primary-bg-active: var(--gray-200);
+  --action-primary-fg:        var(--gray-950);
+
+  /* Actions — secondary (raised dark surface w/ border) */
+  --action-secondary-bg:        var(--gray-900);
+  --action-secondary-bg-hover:  var(--gray-800);
+  --action-secondary-bg-active: var(--gray-700);
+  --action-secondary-fg:        var(--gray-100);
+  --action-secondary-border:    var(--gray-700);
+
+  /* Actions — accent (brand blue, brightened for dark) */
+  --action-accent-bg:        var(--blue-500);
+  --action-accent-bg-hover:  var(--blue-400);
+  --action-accent-bg-active: var(--blue-600);
+  --action-accent-fg:        #ffffff;
+
+  /* Focus ring */
+  --focus-ring: rgba(96, 141, 250, 0.45);
+
+  /* Semantic surfaces — translucent tints + light foregrounds */
+  --success-bg:   rgba(22, 179, 100, 0.16);
+  --success-fg:   var(--green-400);
+  --success-solid:var(--green-500);
+  --error-bg:     rgba(240, 68, 56, 0.16);
+  --error-fg:     var(--red-400);
+  --error-solid:  var(--red-500);
+  --warning-bg:   rgba(247, 144, 9, 0.16);
+  --warning-fg:   var(--amber-400);
+  --warning-solid:var(--amber-500);
+  --info-bg:      rgba(96, 141, 250, 0.16);
+  --info-fg:      var(--blue-300);
+  --info-solid:   var(--blue-500);
+
+  /* Text selection */
+  --selection-bg: rgba(96, 141, 250, 0.32);
+  --selection-fg: var(--gray-50);
+
+  color-scheme: dark;
+}
