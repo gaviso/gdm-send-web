@@ -1,10 +1,16 @@
-export type TransferStatus = "uploading" | "completed" | "expired" | "deleted";
+export type TransferStatus =
+  | "uploading"
+  | "received"
+  | "downloaded"
+  | "expired"
+  | "deleted";
 
 export interface Transfer {
   id: string;
   sender_name: string;
   sender_email: string;
-  message: string | null;
+  subject: string;
+  message: string;
   total_size: number;
   file_count: number;
   status: TransferStatus;
@@ -46,6 +52,7 @@ export interface UploadingFile {
 export interface CreateTransferPayload {
   sender_name: string;
   sender_email: string;
-  message?: string;
+  subject: string;
+  message: string;
   files: { filename: string; file_size: number; mime_type: string }[];
 }

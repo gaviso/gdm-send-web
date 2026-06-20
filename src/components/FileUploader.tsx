@@ -84,9 +84,16 @@ export default function FileUploader({
   }
 
   return (
-    <div className="card">
-      <div {...getRootProps()} className="p-2">
-        <input {...getInputProps()} />
+    <div
+      {...getRootProps()}
+      className={`card transition-colors duration-150 ${
+        isDragActive
+          ? "border-brand-500 ring-2 ring-brand-500/30 dark:border-brand-500"
+          : ""
+      }`}
+    >
+      <input {...getInputProps()} />
+      <div className="p-2">
         <div className="space-y-1">
           {files.map((f) => (
             <div
@@ -153,7 +160,10 @@ export default function FileUploader({
 
       {!disabled && (
         <div className="border-t border-gray-200 dark:border-gray-800 px-2 py-2">
-          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
+          <label
+            onClick={(e) => e.stopPropagation()}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors"
+          >
             <Upload className="h-4 w-4" strokeWidth={1.75} />
             Add more files
             <input

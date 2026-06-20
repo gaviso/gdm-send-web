@@ -51,16 +51,8 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDownload = async (id: string) => {
-    const res = await fetch(`/api/admin/transfers/${id}/download`);
-    if (res.ok) {
-      const data = await res.json();
-      for (const file of data.files) {
-        if (file.url) window.open(file.url, "_blank");
-      }
-    } else {
-      toast.error("Failed to generate download links");
-    }
+  const handleDownload = (id: string) => {
+    window.location.href = `/api/admin/transfers/${id}/zip`;
   };
 
   const handleView = (id: string) => {

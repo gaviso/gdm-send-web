@@ -29,7 +29,16 @@ export async function GET(
       .eq("transfer_id", id)
       .order("created_at", { ascending: true });
 
-    return NextResponse.json({ ...transfer, files: files || [] });
+    const { count: downloadCount } = await supabase
+      .from("download_logs")
+      .select("id", { count: "exact", head: true })
+      .eq("transfer_id", id);
+
+    return NextResponse.json({
+      ...transfer,
+      files: files || [],
+      download_count: downloadCount ?? 0,
+    });
   } catch {
     return NextResponse.json(
       { error: "Internal server error" },

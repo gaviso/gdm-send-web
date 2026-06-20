@@ -13,8 +13,9 @@ interface TransferTableProps {
 }
 
 const statusClass: Record<string, string> = {
-  completed: "badge badge-success",
-  uploading: "badge badge-info",
+  received: "badge badge-success",
+  downloaded: "badge badge-info",
+  uploading: "badge bg-gray-100 text-gray-700 ring-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700",
   expired: "badge badge-warning",
   deleted: "badge badge-danger",
 };
@@ -71,7 +72,7 @@ function ActionMenu({
               <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
               View
             </button>
-            {status === "completed" && (
+            {(status === "received" || status === "downloaded") && (
               <button
                 onClick={onDownload}
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 transition-colors"
@@ -121,6 +122,9 @@ export default function TransferTable({
                 Sender
               </th>
               <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Subject
+              </th>
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Files
               </th>
               <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -153,6 +157,26 @@ export default function TransferTable({
                   <p className="text-xs text-gray-500 dark:text-gray-400 u-mono">
                     {transfer.sender_email}
                   </p>
+                </td>
+                <td className="px-5 py-3 max-w-[260px]">
+                  <p
+                    className="text-sm text-gray-950 dark:text-gray-50 truncate"
+                    title={transfer.subject || undefined}
+                  >
+                    {transfer.subject || (
+                      <span className="text-gray-400 dark:text-gray-500 italic">
+                        No subject
+                      </span>
+                    )}
+                  </p>
+                  {transfer.message && (
+                    <p
+                      className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5"
+                      title={transfer.message}
+                    >
+                      {transfer.message}
+                    </p>
+                  )}
                 </td>
                 <td className="px-5 py-3 text-sm text-gray-700 dark:text-gray-300 u-tnum">
                   {transfer.file_count}

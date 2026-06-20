@@ -15,6 +15,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!body.subject?.trim()) {
+      return NextResponse.json(
+        { error: "Subject is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!body.message?.trim()) {
+      return NextResponse.json(
+        { error: "Message is required" },
+        { status: 400 }
+      );
+    }
+
     if (!body.files?.length) {
       return NextResponse.json(
         { error: "At least one file is required" },
@@ -47,7 +61,8 @@ export async function POST(request: NextRequest) {
       id: transferId,
       sender_name: body.sender_name.trim(),
       sender_email: body.sender_email.trim(),
-      message: body.message?.trim() || null,
+      subject: body.subject.trim(),
+      message: body.message.trim(),
       total_size: totalSize,
       file_count: body.files.length,
       status: "uploading",

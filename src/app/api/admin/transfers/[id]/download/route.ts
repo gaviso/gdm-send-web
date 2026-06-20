@@ -46,6 +46,12 @@ export async function GET(
           request.headers.get("x-real-ip"),
       });
 
+      await admin
+        .from("transfers")
+        .update({ status: "downloaded" })
+        .eq("id", id)
+        .eq("status", "received");
+
       return NextResponse.json({ url });
     }
 
@@ -74,6 +80,12 @@ export async function GET(
         request.headers.get("x-forwarded-for") ||
         request.headers.get("x-real-ip"),
     });
+
+    await admin
+      .from("transfers")
+      .update({ status: "downloaded" })
+      .eq("id", id)
+      .eq("status", "received");
 
     return NextResponse.json({ files: urls });
   } catch {

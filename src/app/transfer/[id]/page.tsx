@@ -139,11 +139,19 @@ export default function TransferConfirmationPage() {
                 {formatDate(transfer.expires_at)}
               </dd>
             </div>
+            {transfer.subject && (
+              <div className="sm:col-span-2">
+                <dt className="text-xs text-gray-500 dark:text-gray-400">Subject</dt>
+                <dd className="mt-0.5 font-medium text-gray-950 dark:text-gray-50">
+                  {transfer.subject}
+                </dd>
+              </div>
+            )}
           </dl>
 
           {transfer.message && (
             <div className="mt-5 rounded-md bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-800 p-3">
-              <p className="text-sm text-gray-700 dark:text-gray-300">{transfer.message}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{transfer.message}</p>
             </div>
           )}
 

@@ -48,7 +48,12 @@ export function useFileUpload() {
   }, [files, getTotalSize]);
 
   const uploadFiles = useCallback(
-    async (senderName: string, senderEmail: string, message?: string) => {
+    async (
+      senderName: string,
+      senderEmail: string,
+      subject: string,
+      message: string
+    ) => {
       const validationError = validateFiles();
       if (validationError) throw new Error(validationError);
 
@@ -58,6 +63,7 @@ export function useFileUpload() {
         const payload: CreateTransferPayload = {
           sender_name: senderName,
           sender_email: senderEmail,
+          subject,
           message,
           files: files.map((f) => ({
             filename: f.file.name,
@@ -169,7 +175,7 @@ export function useFileUpload() {
         await fetch(`/api/transfers/${transfer.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "completed" }),
+          body: JSON.stringify({ status: "received" }),
         });
 
         return transfer.id;

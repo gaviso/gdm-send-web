@@ -8,10 +8,11 @@ create table public.transfers (
   id uuid default uuid_generate_v4() primary key,
   sender_name text not null,
   sender_email text not null,
-  message text,
+  subject text not null default '',
+  message text not null default '',
   total_size bigint not null default 0,
   file_count integer not null default 0,
-  status text not null default 'uploading' check (status in ('uploading', 'completed', 'expired', 'deleted')),
+  status text not null default 'uploading' check (status in ('uploading', 'received', 'downloaded', 'expired', 'deleted')),
   created_at timestamptz default now() not null,
   expires_at timestamptz not null
 );

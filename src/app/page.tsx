@@ -26,11 +26,12 @@ export default function HomePage() {
   const handleSubmit = async (
     name: string,
     email: string,
-    message?: string
+    subject: string,
+    message: string
   ) => {
     setError(null);
     try {
-      const transferId = await uploadFiles(name, email, message);
+      const transferId = await uploadFiles(name, email, subject, message);
       toast.success("Files sent successfully");
       router.push(`/transfer/${transferId}`);
     } catch (err) {

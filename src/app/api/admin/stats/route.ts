@@ -24,11 +24,11 @@ export async function GET() {
       admin
         .from("transfers")
         .select("*", { count: "exact", head: true })
-        .eq("status", "completed"),
+        .in("status", ["received", "downloaded"]),
       admin
         .from("transfers")
         .select("total_size")
-        .eq("status", "completed"),
+        .in("status", ["received", "downloaded"]),
       admin.from("download_logs").select("*", { count: "exact", head: true }),
     ]);
 

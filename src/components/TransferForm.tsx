@@ -9,7 +9,12 @@ interface TransferFormProps {
   fileCount: number;
   isUploading: boolean;
   overallProgress: number;
-  onSubmit: (name: string, email: string, message?: string) => void;
+  onSubmit: (
+    name: string,
+    email: string,
+    subject: string,
+    message: string
+  ) => void;
   disabled?: boolean;
 }
 
@@ -23,13 +28,28 @@ export default function TransferForm({
 }: TransferFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
-    onSubmit(name.trim(), email.trim(), message.trim() || undefined);
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !subject.trim() ||
+      !message.trim()
+    )
+      return;
+    onSubmit(name.trim(), email.trim(), subject.trim(), message.trim());
   };
+
+  const disableSend =
+    disabled ||
+    fileCount === 0 ||
+    !name.trim() ||
+    !email.trim() ||
+    !subject.trim() ||
+    !message.trim();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -66,11 +86,29 @@ export default function TransferForm({
       </div>
 
       <div>
+        <label htmlFor="subject" className="label">
+          Subject
+        </label>
+        <input
+          id="subject"
+          type="text"
+          required
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder="What are you sending"
+          className="input-field"
+          disabled={isUploading}
+          maxLength={120}
+        />
+      </div>
+
+      <div>
         <label htmlFor="message" className="label">
-          Message <span className="text-gray-400 font-normal">(optional)</span>
+          Message
         </label>
         <textarea
           id="message"
+          required
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Add a note for the team"
@@ -101,7 +139,7 @@ export default function TransferForm({
         ) : (
           <button
             type="submit"
-            disabled={disabled || fileCount === 0}
+            disabled={disableSend}
             className="btn-primary w-full"
           >
             <Send className="h-4 w-4" strokeWidth={1.75} />
