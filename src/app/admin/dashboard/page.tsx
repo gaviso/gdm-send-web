@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import StatsCards from "@/components/admin/StatsCards";
 import TransferTable from "@/components/admin/TransferTable";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmDialog";
 import type { Transfer } from "@/types";
 
 interface Stats {
@@ -16,6 +17,7 @@ interface Stats {
 }
 
 export default function DashboardPage() {
+  const confirm = useConfirm();
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentTransfers, setRecentTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,14 @@ export default function DashboardPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this transfer and all its files?")) return;
+    const ok = await confirm({
+      title: "Delete transfer?",
+      description:
+        "This permanently deletes the transfer record and removes all its files from storage. This action cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/transfers/${id}`, { method: "DELETE" });
     if (res.ok) {
       setRecentTransfers((prev) => prev.filter((t) => t.id !== id));

@@ -5,6 +5,7 @@ import { Upload, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase";
 import Avatar from "@/components/admin/Avatar";
+import { useConfirm } from "@/components/ConfirmDialog";
 
 interface Profile {
   id: string;
@@ -17,6 +18,7 @@ interface Profile {
 
 export default function ProfilePage() {
   const supabase = createClient();
+  const confirm = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -188,7 +190,13 @@ export default function ProfilePage() {
 
   const handleRemoveAvatar = async () => {
     if (!profile?.avatar_path) return;
-    if (!confirm("Remove your avatar?")) return;
+    const ok = await confirm({
+      title: "Remove avatar?",
+      description: "Your avatar will be deleted from storage.",
+      confirmLabel: "Remove",
+      destructive: true,
+    });
+    if (!ok) return;
     setUploadingAvatar(true);
     try {
       await fetch("/api/admin/profile/avatar", { method: "DELETE" });

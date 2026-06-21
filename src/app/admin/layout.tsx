@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { ConfirmProvider } from "@/components/ConfirmDialog";
 
 export default function AdminLayout({
   children,
@@ -54,11 +55,13 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
-      <AdminSidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-6xl px-8 py-8">{children}</div>
-      </main>
-    </div>
+    <ConfirmProvider>
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+        <AdminSidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-6xl px-8 py-8">{children}</div>
+        </main>
+      </div>
+    </ConfirmProvider>
   );
 }

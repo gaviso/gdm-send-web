@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBytes, formatDate } from "@/lib/utils";
+import { useConfirm } from "@/components/ConfirmDialog";
 import type { Transfer, TransferWithFiles } from "@/types";
 
 const STATUS_FILTERS = [
@@ -34,6 +35,7 @@ const statusClass: Record<string, string> = {
 };
 
 export default function TransfersPage() {
+  const confirm = useConfirm();
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -91,7 +93,14 @@ export default function TransfersPage() {
   }, [selectedId]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this transfer and all its files?")) return;
+    const ok = await confirm({
+      title: "Delete transfer?",
+      description:
+        "This permanently deletes the transfer record and removes all its files from storage. This action cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/transfers/${id}`, { method: "DELETE" });
     if (res.ok) {
       toast.success("Transfer deleted");
