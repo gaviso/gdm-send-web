@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase-server";
-import {
-  S3Client,
-  GetObjectCommand,
-} from "@aws-sdk/client-s3";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getB2Client } from "@/lib/b2";
 import { Readable } from "node:stream";
 import * as archiverNs from "archiver";
 import type { Archiver, ArchiverOptions } from "archiver";
@@ -17,17 +15,6 @@ const archiver = archiverNs as unknown as (
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
-
-const s3 = new S3Client({
-  endpoint: process.env.B2_ENDPOINT!,
-  region: process.env.B2_REGION!,
-  credentials: {
-    accessKeyId: process.env.B2_KEY_ID!,
-    secretAccessKey: process.env.B2_APP_KEY!,
-  },
-});
-
-const BUCKET = process.env.B2_BUCKET_NAME!;
 
 function safeFilename(input: string, fallback: string): string {
   const cleaned = input
@@ -97,11 +84,16 @@ export async function GET(
     console.error("Archive error:", err);
   });
 
+  const { client: s3, config: b2Config } = await getB2Client();
+
   (async () => {
     try {
       for (const file of files) {
         const obj = await s3.send(
-          new GetObjectCommand({ Bucket: BUCKET, Key: file.storage_path })
+          new GetObjectCommand({
+            Bucket: b2Config.bucket,
+            Key: file.storage_path,
+          })
         );
         if (obj.Body) {
           archive.append(obj.Body as Readable, { name: file.filename });

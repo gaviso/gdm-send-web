@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { deleteFiles } from "@/lib/b2";
+import { notifyTransferReceived } from "@/lib/notify";
 
 export async function GET(
   _request: NextRequest,
@@ -59,6 +60,18 @@ export async function PATCH(
     const updates: Record<string, string> = {};
     if (body.status) updates.status = body.status;
 
+    // Capture the previous state so we only fire notifications on the
+    // first transition into "received" (avoids duplicate emails on retry).
+    let previousStatus: string | null = null;
+    if (updates.status === "received") {
+      const { data: prev } = await supabase
+        .from("transfers")
+        .select("status")
+        .eq("id", id)
+        .maybeSingle();
+      previousStatus = prev?.status ?? null;
+    }
+
     const { error } = await supabase
       .from("transfers")
       .update(updates)
@@ -69,6 +82,23 @@ export async function PATCH(
         { error: "Failed to update transfer" },
         { status: 500 }
       );
+    }
+
+    if (updates.status === "received" && previousStatus !== "received") {
+      const { data: transfer } = await supabase
+        .from("transfers")
+        .select(
+          "id, sender_name, sender_email, subject, message, total_size, file_count, created_at, expires_at"
+        )
+        .eq("id", id)
+        .single();
+
+      if (transfer) {
+        // Fire and forget — never block the API response on email delivery.
+        notifyTransferReceived(transfer).catch((err) =>
+          console.error(`[notify] dispatch failed for ${id}:`, err)
+        );
+      }
     }
 
     return NextResponse.json({ success: true });

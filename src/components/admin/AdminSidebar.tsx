@@ -9,6 +9,9 @@ import {
   Settings,
   LogOut,
   UserCircle,
+  Plug,
+  Bell,
+  Mail,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import Logo from "@/components/Logo";
@@ -20,6 +23,9 @@ const nav = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/transfers", label: "Transfers", icon: FolderOpen },
   { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin/integrations", label: "Integrations", icon: Plug },
+  { href: "/admin/notifications", label: "Notifications", icon: Bell },
+  { href: "/admin/email-templates", label: "Email templates", icon: Mail },
   { href: "/admin/profile", label: "Profile", icon: UserCircle },
 ];
 
