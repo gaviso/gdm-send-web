@@ -100,6 +100,34 @@ export default function HomePage() {
                 description="Large files are handled with ease, no compression."
               />
             </div>
+
+            <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center gap-4 flex-wrap">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Sending from your phone? Get the iOS app.
+              </p>
+              <a
+                href="https://apps.apple.com/app/gdm-send/id6766103102"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-opacity hover:opacity-80"
+                aria-label="Download GDM Send on the App Store"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/app-store-badge.svg"
+                  alt="Download on the App Store"
+                  height={40}
+                  className="h-10 w-auto block dark:hidden"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/app-store-badge-white.svg"
+                  alt="Download on the App Store"
+                  height={40}
+                  className="h-10 w-auto hidden dark:block"
+                />
+              </a>
+            </div>
           </div>
 
           <div className="lg:sticky lg:top-8 lg:self-start">
