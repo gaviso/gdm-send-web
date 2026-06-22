@@ -1,6 +1,9 @@
 import { createAdminClient } from "./supabase-server";
 import { sendEmail, sendSlackMessage } from "./mailer";
-import { renderEmailTemplate, type EmailTemplateKey } from "./email-templates";
+import {
+  renderEmailWithMaster,
+  type EmailTemplateKey,
+} from "./email-templates";
 import { formatBytes, formatDate } from "./utils";
 
 interface TransferData {
@@ -94,7 +97,7 @@ export async function notifyTransferReceived(transfer: TransferData) {
   //    is the on/off switch for this, not the notification_preferences).
   if (transfer.sender_email) {
     try {
-      const rendered = await renderEmailTemplate(
+      const rendered = await renderEmailWithMaster(
         "transfer_confirmation",
         vars,
         loadTemplateOverride
@@ -122,7 +125,7 @@ export async function notifyTransferReceived(transfer: TransferData) {
     const notifEmail = await getNotificationEmail();
     if (notifEmail) {
       try {
-        const rendered = await renderEmailTemplate(
+        const rendered = await renderEmailWithMaster(
           "transfer_received_admin",
           vars,
           loadTemplateOverride

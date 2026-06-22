@@ -31,11 +31,17 @@ export async function PUT(
 
   const subject = (body.subject ?? "").trim();
   const text = (body.body ?? "").trim();
-  if (!subject) {
+  if (!def.isLayout && !subject) {
     return NextResponse.json({ error: "Subject is required" }, { status: 400 });
   }
   if (!text) {
     return NextResponse.json({ error: "Body is required" }, { status: 400 });
+  }
+  if (def.isLayout && !text.includes("{{content}}")) {
+    return NextResponse.json(
+      { error: "Layout body must include {{content}}" },
+      { status: 400 }
+    );
   }
 
   const admin = createAdminClient();

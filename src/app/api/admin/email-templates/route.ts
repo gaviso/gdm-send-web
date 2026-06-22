@@ -41,6 +41,7 @@ export async function GET() {
       name: def.name,
       description: def.description,
       audience: def.audience,
+      is_layout: !!def.isLayout,
       variables: def.variables,
       subject: override?.subject ?? def.defaultSubject,
       body: override?.body ?? def.defaultBody,

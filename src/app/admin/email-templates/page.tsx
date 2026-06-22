@@ -1,18 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { html as htmlLang } from "@codemirror/lang-html";
+import {
+  vscodeDark,
+  vscodeLight,
+} from "@uiw/codemirror-theme-vscode";
 import {
   Mail,
   X,
   Save,
   RotateCcw,
   CheckCircle2,
+  AlertCircle,
   Edit3,
   Power,
+  Code2,
+  Eye,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ConfirmDialog";
+import { useTheme } from "@/components/ThemeProvider";
 import { formatDate } from "@/lib/utils";
+import {
+  SAMPLE_VARS,
+  SAMPLE_MESSAGE_CONTENT,
+  ensureHtml,
+} from "@/lib/email-templates";
+
+const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 min-h-[360px] rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+      <span className="text-xs text-gray-500 dark:text-gray-400">
+        Loading editor…
+      </span>
+    </div>
+  ),
+});
 
 interface TemplateVariable {
   name: string;
@@ -23,7 +51,8 @@ interface EmailTemplate {
   key: string;
   name: string;
   description: string;
-  audience: "Sender" | "Admin";
+  audience: "Sender" | "Admin" | "Layout";
+  is_layout: boolean;
   variables: TemplateVariable[];
   subject: string;
   body: string;
@@ -39,6 +68,15 @@ export default function EmailTemplatesPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<EmailTemplate | null>(null);
+
+  const layout = useMemo(
+    () => templates.find((t) => t.is_layout) || null,
+    [templates]
+  );
+  const messages = useMemo(
+    () => templates.filter((t) => !t.is_layout),
+    [templates]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,20 +147,39 @@ export default function EmailTemplatesPage() {
         </p>
       </div>
 
-      <div className="space-y-4">
-        {templates.map((t) => (
+      {layout && (
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+            Master layout
+          </p>
           <TemplateCard
-            key={t.key}
-            template={t}
-            onEdit={() => setEditing(t)}
-            onReset={() => handleReset(t.key, t.name)}
+            template={layout}
+            onEdit={() => setEditing(layout)}
+            onReset={() => handleReset(layout.key, layout.name)}
           />
-        ))}
+        </div>
+      )}
+
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+          Messages
+        </p>
+        <div className="space-y-4">
+          {messages.map((t) => (
+            <TemplateCard
+              key={t.key}
+              template={t}
+              onEdit={() => setEditing(t)}
+              onReset={() => handleReset(t.key, t.name)}
+            />
+          ))}
+        </div>
       </div>
 
       {editing && (
         <TemplateEditor
           template={editing}
+          masterBody={layout?.body || ""}
           onClose={() => setEditing(null)}
           onSaved={async () => {
             setEditing(null);
@@ -195,33 +252,128 @@ function TemplateCard({
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          Subject
-        </p>
-        <p className="mt-1 text-sm font-medium text-gray-950 dark:text-gray-50 u-mono truncate">
-          {template.subject}
-        </p>
-      </div>
+      {!template.is_layout && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Subject
+          </p>
+          <p className="mt-1 text-sm font-medium text-gray-950 dark:text-gray-50 u-mono truncate">
+            {template.subject}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
 function TemplateEditor({
   template,
+  masterBody,
   onClose,
   onSaved,
   onReset,
 }: {
   template: EmailTemplate;
+  masterBody: string;
   onClose: () => void;
   onSaved: () => void;
   onReset: () => void;
 }) {
+  const { resolved: resolvedTheme } = useTheme();
   const [subject, setSubject] = useState(template.subject);
   const [body, setBody] = useState(template.body);
   const [isEnabled, setIsEnabled] = useState(template.is_enabled);
   const [saving, setSaving] = useState(false);
+
+  const [testEmail, setTestEmail] = useState("");
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
+
+  // Prefill the test recipient with the admin's own email
+  useEffect(() => {
+    if (template.is_layout) return;
+    fetch("/api/admin/profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => {
+        if (p?.email) setTestEmail(p.email);
+      })
+      .catch(() => {});
+  }, [template.is_layout]);
+
+  const handleSendTest = async () => {
+    if (!testEmail.trim()) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const res = await fetch(
+        `/api/admin/email-templates/${template.key}/test`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: testEmail.trim(),
+            subject,
+            body,
+          }),
+        }
+      );
+      const data = (await res.json()) as { ok: boolean; message: string };
+      setTestResult(data);
+    } catch {
+      setTestResult({ ok: false, message: "Network error" });
+    } finally {
+      setTestSending(false);
+    }
+  };
+
+  const substituteVars = (
+    text: string,
+    extraVars: Record<string, string> = {}
+  ) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_, name) => {
+      if (extraVars[name] != null) return extraVars[name];
+      if (SAMPLE_VARS[name] != null) return SAMPLE_VARS[name];
+      return `[[${name}]]`;
+    });
+
+  const previewHtml = useMemo(() => {
+    if (template.is_layout) {
+      // Preview the layout itself with sample message content.
+      const sampleContent = substituteVars(SAMPLE_MESSAGE_CONTENT);
+      return substituteVars(ensureHtml(body), {
+        content: sampleContent,
+        subject: SAMPLE_VARS.subject || "",
+        year: String(new Date().getFullYear()),
+      });
+    }
+
+    // For message templates, render the message and inject into the master.
+    const renderedMessage = substituteVars(ensureHtml(body));
+    const renderedSubject = substituteVars(subject);
+    const wrapped = substituteVars(masterBody || "{{content}}", {
+      content: renderedMessage,
+      subject: renderedSubject,
+      year: String(new Date().getFullYear()),
+    });
+
+    // Prepend a subject preview bar so admins see how it'll appear.
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${renderedSubject.replace(/</g, "&lt;")}</title>
+</head>
+<body style="margin:0;">
+<div style="background:#fafafa;border-bottom:1px solid #e4e4e7;padding:10px 14px;font:12px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#52525b;">
+  <span style="color:#a1a1aa;">Subject:</span> <strong style="color:#18181b;">${renderedSubject.replace(/</g, "&lt;")}</strong>
+</div>
+${wrapped}
+</body>
+</html>`;
+  }, [body, subject, masterBody, template.is_layout]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -251,9 +403,12 @@ function TemplateEditor({
         toast.success("Template saved");
         onSaved();
       } else {
-        const err = await res.json();
-        toast.error(err.error || "Failed to save");
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || `Failed to save (HTTP ${res.status})`);
       }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Network error";
+      toast.error(`Failed to save: ${msg}`);
     } finally {
       setSaving(false);
     }
@@ -270,7 +425,7 @@ function TemplateEditor({
         className="absolute inset-0 bg-gray-950/45 backdrop-blur-[2px] animate-[fade-in_120ms_ease-out]"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900 animate-[scale-in_140ms_ease-out]">
+      <div className="relative w-[96vw] max-w-[1500px] max-h-[92vh] flex flex-col rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900 animate-[scale-in_140ms_ease-out]">
         <div className="flex items-start justify-between gap-3 p-6 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
@@ -284,7 +439,9 @@ function TemplateEditor({
                 {template.name}
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Sent to {template.audience.toLowerCase()}
+                {template.is_layout
+                  ? "Applied to every outgoing email"
+                  : `Sent to ${template.audience.toLowerCase()}`}
                 {template.updated_at &&
                   ` · Updated ${formatDate(template.updated_at)}`}
               </p>
@@ -299,26 +456,9 @@ function TemplateEditor({
           </button>
         </div>
 
-        <div className="overflow-y-auto p-6 grid gap-6 lg:grid-cols-[1fr_220px]">
-          <div className="space-y-4 min-w-0">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isEnabled}
-                onChange={(e) => setIsEnabled(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-gray-950 focus:ring-brand-500"
-                disabled={saving}
-              />
-              <div>
-                <span className="text-[13px] font-medium text-gray-950 dark:text-gray-50">
-                  Enabled
-                </span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Uncheck to stop sending this email
-                </p>
-              </div>
-            </label>
-
+        <div className="overflow-y-auto p-6 space-y-4 min-h-0 flex-1 flex flex-col">
+          {!template.is_layout && (
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <label htmlFor="tmpl-subject" className="label">
                 Subject
@@ -333,49 +473,158 @@ function TemplateEditor({
                 disabled={saving}
               />
             </div>
-
-            <div>
-              <label htmlFor="tmpl-body" className="label">
-                Body
-              </label>
-              <textarea
-                id="tmpl-body"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                rows={16}
-                className="textarea-field u-mono text-[13px]"
-                spellCheck={false}
+            <label className="flex items-center gap-2 cursor-pointer pb-2">
+              <input
+                type="checkbox"
+                checked={isEnabled}
+                onChange={(e) => setIsEnabled(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-gray-950 focus:ring-brand-500"
                 disabled={saving}
               />
+              <span className="text-[13px] font-medium text-gray-950 dark:text-gray-50">
+                Enabled
+              </span>
+            </label>
+          </div>
+          )}
+
+          <div className="grid gap-4 lg:grid-cols-[1fr_1fr_220px] flex-1 min-h-0">
+            <div className="flex flex-col min-h-0 min-w-0">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="label mb-0 flex items-center gap-1.5">
+                  <Code2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  HTML
+                </span>
+              </div>
+              <div className="flex-1 min-h-[360px] min-w-0 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <CodeMirror
+                  value={body}
+                  onChange={(v) => setBody(v)}
+                  height="100%"
+                  theme={resolvedTheme === "dark" ? vscodeDark : vscodeLight}
+                  extensions={[htmlLang()]}
+                  basicSetup={{
+                    lineNumbers: true,
+                    foldGutter: true,
+                    highlightActiveLine: true,
+                    bracketMatching: true,
+                    closeBrackets: true,
+                    autocompletion: true,
+                    indentOnInput: true,
+                    syntaxHighlighting: true,
+                  }}
+                  editable={!saving}
+                  style={{
+                    height: "100%",
+                    fontSize: "12px",
+                    fontFamily:
+                      'ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace',
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col min-h-0 min-w-0">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="label mb-0 flex items-center gap-1.5">
+                  <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  Preview
+                </span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                  using sample data
+                </span>
+              </div>
+              <iframe
+                title="Email preview"
+                srcDoc={previewHtml}
+                className="flex-1 min-h-[360px] rounded-md border border-gray-200 dark:border-gray-700 bg-white"
+                sandbox="allow-same-origin"
+              />
+            </div>
+
+            <aside className="lg:border-l lg:border-gray-200 lg:dark:border-gray-800 lg:pl-4 min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+                Available variables
+              </p>
+              <ul className="space-y-2">
+                {template.variables.map((v) => (
+                  <li key={v.name}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`{{${v.name}}}`);
+                        toast.success(`Copied {{${v.name}}}`);
+                      }}
+                      className="u-mono text-[12px] text-brand-600 dark:text-brand-400 hover:underline truncate text-left max-w-full"
+                      title="Click to copy"
+                    >
+                      {`{{${v.name}}}`}
+                    </button>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {v.description}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
+        </div>
+
+        {!template.is_layout && (
+          <div className="border-t border-gray-200 dark:border-gray-800 px-6 py-3 bg-gray-50/30 dark:bg-gray-900/20">
+            <div className="flex flex-wrap items-center gap-2">
+              <label
+                htmlFor="tmpl-test-to"
+                className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
+              >
+                Send test to
+              </label>
+              <input
+                id="tmpl-test-to"
+                type="email"
+                value={testEmail}
+                onChange={(e) => {
+                  setTestEmail(e.target.value);
+                  setTestResult(null);
+                }}
+                placeholder="you@example.com"
+                className="input-field u-mono flex-1 min-w-[240px] max-w-md h-8 text-[13px]"
+                disabled={testSending || saving}
+              />
+              <button
+                onClick={handleSendTest}
+                disabled={testSending || saving || !testEmail.trim()}
+                className="btn-secondary btn-sm"
+              >
+                {testSending ? (
+                  <Loader2
+                    className="h-3.5 w-3.5 animate-spin"
+                    strokeWidth={1.75}
+                  />
+                ) : (
+                  <Send className="h-3.5 w-3.5" strokeWidth={1.75} />
+                )}
+                {testSending ? "Sending…" : "Send test"}
+              </button>
+              {testResult && (
+                <span
+                  className={`flex items-center gap-1 text-[12px] ${
+                    testResult.ok
+                      ? "text-success-700 dark:text-success-400"
+                      : "text-danger-700 dark:text-danger-400"
+                  }`}
+                >
+                  {testResult.ok ? (
+                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  ) : (
+                    <AlertCircle className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  )}
+                  {testResult.message}
+                </span>
+              )}
             </div>
           </div>
-
-          <aside className="lg:border-l lg:border-gray-200 lg:dark:border-gray-800 lg:pl-6">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
-              Available variables
-            </p>
-            <ul className="space-y-2">
-              {template.variables.map((v) => (
-                <li key={v.name}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`{{${v.name}}}`);
-                      toast.success(`Copied {{${v.name}}}`);
-                    }}
-                    className="u-mono text-[12px] text-brand-600 dark:text-brand-400 hover:underline"
-                    title="Click to copy"
-                  >
-                    {`{{${v.name}}}`}
-                  </button>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                    {v.description}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </aside>
-        </div>
+        )}
 
         <div className="flex items-center justify-between gap-2 border-t border-gray-200 dark:border-gray-800 px-6 py-3 bg-gray-50/60 dark:bg-gray-900/40 rounded-b-lg">
           {!template.is_default ? (

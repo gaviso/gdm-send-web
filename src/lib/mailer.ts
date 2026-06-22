@@ -1,9 +1,11 @@
 import nodemailer from "nodemailer";
 import { getIntegrationConfig } from "./integrations";
+import { ensureHtml, htmlToText } from "./email-templates";
 
 interface SendOptions {
   to: string;
   subject: string;
+  /** Body in HTML. Plain-text bodies are auto-wrapped to HTML. */
   body: string;
 }
 
@@ -71,11 +73,14 @@ async function sendViaResend(
   const from = cfg.from_name
     ? `${cfg.from_name} <${cfg.from_email}>`
     : cfg.from_email;
+  const html = ensureHtml(opts.body);
+  const text = htmlToText(html);
   const payload: Record<string, unknown> = {
     from,
     to: [opts.to],
     subject: opts.subject,
-    text: opts.body,
+    html,
+    text,
   };
   if (cfg.reply_to) payload.reply_to = cfg.reply_to;
   if (cfg.bcc) payload.bcc = [cfg.bcc];
@@ -116,11 +121,14 @@ async function sendViaSmtp(
       secure: port === 465,
       auth: { user: cfg.username, pass: cfg.password },
     });
+    const html = ensureHtml(opts.body);
+    const text = htmlToText(html);
     await transporter.sendMail({
       from: cfg.from_email,
       to: opts.to,
       subject: opts.subject,
-      text: opts.body,
+      html,
+      text,
     });
     return { ok: true, channel: "smtp" };
   } catch (err: unknown) {

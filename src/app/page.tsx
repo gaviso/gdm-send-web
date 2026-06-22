@@ -123,7 +123,7 @@ export default function HomePage() {
       <footer className="border-t border-gray-200 dark:border-gray-800">
         <div className="mx-auto max-w-6xl px-6 py-6">
           <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Gaviso. All rights reserved.
+            &copy; {new Date().getFullYear()} Gaviso Digital Marketing, LLC. All rights reserved.
           </p>
         </div>
       </footer>
